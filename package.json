@@ -14,7 +14,6 @@
     "@emotion/styled": "^11.13.0",
     "@heygen/streaming-avatar": "^2.0.7",
     "@mui/material": "^6.1.6",
-    "@heygen/streaming-avatar": "^2.0.7",
     "@nextui-org/button": "2.0.34",
     "@nextui-org/chip": "^2.0.32",
     "@nextui-org/code": "2.0.29",
@@ -44,6 +43,7 @@
     "openai": "^4.52.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "uuid": "^11.0.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
