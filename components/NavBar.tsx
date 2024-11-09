@@ -28,7 +28,6 @@ export default function NavBar() {
           <Link isExternal color="foreground" href="/courses">
             Courses
           </Link>
-
           <ThemeSwitch />
         </NavbarItem>
       </NavbarContent>
