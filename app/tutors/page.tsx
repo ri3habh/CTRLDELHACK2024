@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
+  Grid,
   Modal,
   Box,
   Button,
@@ -37,6 +38,7 @@ const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
   const [description, setDescription] = useState<string>("");
   const [data, setData] = useState<Course[]>([]);
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -109,10 +111,31 @@ const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
           borderRadius: 2,
         }}
       >
-        <h3 style={{ color: "white" }}>Add New Tutor</h3>
-
         <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-          <Avatar src={selectedPhoto} sx={{ width: 60, height: 60 }} />
+          {people.map((person, idx) => (
+            <img
+              key={idx}
+              src={`/person${idx + 1}.png`}
+              alt={`Profile of ${person.name}`}
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: "50%",
+                cursor: "pointer",
+                border:
+                  selectedIndex === idx
+                    ? "3px solid white"
+                    : "3px solid transparent", // White border on select
+                transition: "border 0.5s ease, transform 0.5s ease", // Smooth transition for border and scaling
+                transform: selectedIndex === idx ? "scale(1.1)" : "scale(1)", // Slight scale effect on click
+                boxShadow:
+                  selectedIndex === idx
+                    ? "0px 0px 12px rgba(255, 255, 255, 0.7)"
+                    : "none", // Optional shadow for effect
+              }}
+              onClick={() => setSelectedIndex(idx)} // Set selected image index on click
+            />
+          ))}
         </Stack>
 
         <FormControl component="fieldset" sx={{ mt: 3, width: "100%" }}>
@@ -161,23 +184,28 @@ const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
           Select Courses
         </Typography>
         <FormControl sx={{ width: "100%", mt: 2 }}>
-          {data.map((course) => (
-            <FormControlLabel
-              key={course.id}
-              control={
-                <Checkbox
-                  checked={selectedCourses.includes(course.id)}
-                  onChange={() => handleCourseChange(course.id)}
-                  sx={{
-                    color: "white",
-                    "&.Mui-checked": { color: "#1976d2" },
-                  }}
+          <Grid container spacing={2}>
+            {data.map((course) => (
+              <Grid item xs={12} sm={6} md={4} key={course.id}>
+                {" "}
+                {/* Responsive grid for 1 column on xs, 2 on sm, 3 on md */}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={selectedCourses.includes(course.id)}
+                      onChange={() => handleCourseChange(course.id)}
+                      sx={{
+                        color: "white",
+                        "&.Mui-checked": { color: "#1976d2" },
+                      }}
+                    />
+                  }
+                  label={course.name}
+                  sx={{ color: "white" }}
                 />
-              }
-              label={course.name}
-              sx={{ color: "white" }}
-            />
-          ))}
+              </Grid>
+            ))}
+          </Grid>
         </FormControl>
 
         <Button
@@ -213,7 +241,7 @@ const AddItemPopup: React.FC = () => {
 const people = [
   {
     name: "John Doe",
-    profileImage: "/person1.png",
+    profileImage: "/person13.png",
     description:
       "A passionate tutor with expertise in Mathematics and Physics.",
   },
@@ -238,12 +266,6 @@ const people = [
   {
     name: "Emily Davis",
     profileImage: "/person8.png",
-    description:
-      "A passionate educator with a background in Software Engineering and a focus on teaching practical coding skills.",
-  },
-  {
-    name: "Emily Davis",
-    profileImage: "/person6.png",
     description:
       "A passionate educator with a background in Software Engineering and a focus on teaching practical coding skills.",
   },
@@ -295,14 +317,6 @@ const Tutor = ({
             <Typography color="white">{description}</Typography>
           </Stack>
         </Stack>
-
-        {/* <Stack direction="row" gap="0.5rem" marginRight="1rem">
-          {tags.map((tag, idx) => (
-            <Typography key={idx} color="white" variant="body2">
-              {tag}
-            </Typography>
-          ))}
-        </Stack> */}
 
         <LocalPhoneIcon sx={{ fontSize: "3rem", marginRight: "2rem" }} />
       </Stack>

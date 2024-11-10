@@ -119,7 +119,10 @@ const Courses = () => {
         paddingBottom="2rem"
       >
         <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text">
-          <p className=" font-semibold text-transparent"> Upload Your Notes</p>
+          <p className=" font-semibold text-transparent">
+            {" "}
+            Upload Your Courses
+          </p>
         </div>
       </Typography>
 

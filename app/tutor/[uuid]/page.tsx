@@ -37,6 +37,7 @@ const TutorCall = ({ params }: { params: { uuid: string } }) => {
   const [knowledgeId, setKnowledgeId] = useState<string>("");
   const [avatarId, setAvatarId] = useState<string>("");
   const [language, setLanguage] = useState<string>("en");
+  const [transcription, setTranscription] = useState<string>(""); // New state for transcription
 
   const [data, setData] = useState<StartAvatarResponse>();
   const [text, setText] = useState<string>("");
@@ -134,6 +135,8 @@ const TutorCall = ({ params }: { params: { uuid: string } }) => {
         body: JSON.stringify(reqBody),
       });
       const { answer } = await response.json();
+      setTranscription(answer); // Update transcription with the answer
+
       await avatar.current
         .speak({
           text: answer,
@@ -343,11 +346,17 @@ const TutorCall = ({ params }: { params: { uuid: string } }) => {
           )}
         </CardFooter>
       </Card>
-      <p className="font-mono text-right">
+      <div className="mt-4">
+        <h2 className="text-lg font-semibold">Live Transcription:</h2>
+        <p className="text-gray-700 bg-gray-100 p-4 rounded-lg">
+          {transcription}
+        </p>
+      </div>
+      {/* <p className="font-mono text-right">
         <span className="font-bold">Console:</span>
         <br />
         {debug}
-      </p>
+      </p> */}
     </div>
   );
 };
