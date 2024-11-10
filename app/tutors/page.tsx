@@ -11,6 +11,7 @@ import {
   Checkbox,
   Stack,
   Typography,
+  Link,
 } from "@mui/material";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import AddIcon from "@mui/icons-material/Add";
@@ -243,11 +244,13 @@ const people = [
 ];
 
 const Tutor = ({
+  id,
   image,
   name,
   description,
 }: {
   image: string;
+  id: string;
   name: string;
   description: string;
 }) => {
@@ -273,9 +276,9 @@ const Tutor = ({
           <Typography>{description}</Typography>
         </Stack>
       </Stack>
-      <Button>
+      <Link href={`/tutor/${id}`}>
         <LocalPhoneIcon sx={{ fontSize: "3rem" }} />
-      </Button>
+      </Link>
     </Stack>
   );
 };
@@ -325,6 +328,7 @@ const Tutors = () => {
         {tutors.map((tutor, index) => (
           <Tutor
             key={index}
+            id={tutor.id}
             image={tutor.profileImage}
             name={tutor.name}
             description={tutor.description}
