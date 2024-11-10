@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Table,
@@ -9,49 +9,104 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  Modal,
+  Box,
+  TextField,
+  Stack,
 } from "@mui/material";
-
+import CloseIcon from "@mui/icons-material/Close";
+import AddIcon from "@mui/icons-material/Add";
+import pdfToText from "react-pdftotext";
 interface Course {
   name: string;
   description: string;
+  rawText: string;
+  embedding: string;
+  created_at: string;
 }
 
 const Courses = () => {
-  const courses: Course[] = [
-    { name: "Math 101", description: "Introduction to Mathematics" },
-    { name: "CS 101", description: "Introduction to Computer Science" },
-    { name: "History 101", description: "World History Overview" },
-    {
-      name: "CS 241",
-      description:
-        "Fundamentals of Computer Science, focusing on data structures and algorithms",
-    },
-    {
-      name: "Math 135",
-      description:
-        "Calculus for Engineers, covering multi-variable calculus and vector analysis",
-    },
-    {
-      name: "CO 250",
-      description:
-        "Discrete Structures, focusing on discrete math concepts like logic and set theory",
-    },
-    {
-      name: "CS 375",
-      description:
-        "Algorithms and Complexity, with a focus on algorithm design and complexity theory",
-    },
-    {
-      name: "Math 237",
-      description:
-        "Linear Algebra, covering matrix operations, vector spaces, and eigenvalues",
-    },
-    {
-      name: "PHYS 101",
-      description:
-        "Fundamentals of Physics, covering mechanics, thermodynamics, and waves",
-    },
-  ];
+  const [data, setData] = useState<Course[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRawText, setSelectedRawText] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) setFile(e.target.files[0]);
+  };
+
+  const handleUpload = async () => {
+    try {
+      if (!file) return;
+      const text = await pdfToText(file);
+      const response = await fetch("/api/course/insert", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          description: newDescription,
+          rawText: text,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUploadStatus(`Upload successful: ${data.id}`);
+      } else {
+        const errorData = await response.json();
+        setUploadStatus(`Upload failed: ${errorData.error}`);
+      }
+    } catch (error) {
+      setUploadStatus(`Upload failed!!!!`);
+    }
+  };
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/course/get", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const dataEntry = await response.json();
+      setData(dataEntry.courses);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  const handlePreviewClick = (rawText: string) => {
+    setSelectedRawText(rawText);
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedRawText(null);
+  };
+
+  const handleAddClick = () => setModalOpen(true);
+
+  const handleModalClose = () => {
+    console.log("New Course Name:", newName);
+    console.log("New Course Description:", newDescription);
+    setModalOpen(false);
+    setNewName("");
+    setNewDescription("");
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <div>
@@ -107,7 +162,7 @@ const Courses = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {courses.map((course, index) => (
+            {data.map((course, index) => (
               <TableRow
                 key={index}
                 sx={{
@@ -138,6 +193,7 @@ const Courses = () => {
                         backgroundColor: "#1565c0",
                       },
                     }}
+                    onClick={() => handlePreviewClick(course.rawText)}
                   >
                     Preview
                   </Button>
@@ -147,6 +203,112 @@ const Courses = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullScreen>
+        <DialogTitle sx={{ backgroundColor: "#1976d2", color: "white" }}>
+          Course Raw Text
+          <IconButton
+            edge="end"
+            color="inherit"
+            onClick={handleCloseDialog}
+            aria-label="close"
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent
+          sx={{ padding: "2rem", backgroundColor: "#333", color: "white" }}
+        >
+          <pre>{selectedRawText}</pre>
+        </DialogContent>
+      </Dialog>
+
+      <IconButton
+        color="primary"
+        onClick={handleAddClick}
+        sx={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          backgroundColor: "#1976d2",
+          "&:hover": {
+            backgroundColor: "#1565c0",
+          },
+        }}
+      >
+        <AddIcon sx={{ fontSize: "2.5rem", color: "white" }} />
+      </IconButton>
+
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Box
+          sx={{
+            width: 400,
+            bgcolor: "#333",
+            color: "white",
+            p: 4,
+            m: "auto",
+            mt: "10%",
+            borderRadius: 2,
+          }}
+        >
+          <h3 style={{ color: "white" }}>Add New Course</h3>
+          <Stack spacing={2}>
+            <TextField
+              label="Name"
+              variant="outlined"
+              fullWidth
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              sx={{
+                "& .MuiInputBase-root": { color: "white" },
+                "& .MuiInputLabel-root": { color: "#bbb" },
+                "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#bbb",
+                },
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                  {
+                    borderColor: "white",
+                  },
+              }}
+            />
+            <TextField
+              label="Description"
+              multiline
+              rows={4}
+              variant="outlined"
+              fullWidth
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              sx={{
+                "& .MuiInputBase-root": { color: "white" },
+                "& .MuiInputLabel-root": { color: "#bbb" },
+                "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "#bbb",
+                },
+                "& .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline":
+                  {
+                    borderColor: "white",
+                  },
+              }}
+            />
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileChange}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleUpload}
+              sx={{ mt: 2 }}
+            >
+              Submit
+            </Button>
+            {uploadStatus && <p>{uploadStatus}</p>}
+          </Stack>
+        </Box>
+      </Modal>
     </div>
   );
 };

@@ -41,7 +41,7 @@ export type Database = {
           description: string | null;
           id: string;
           rawText: string | null;
-          embedding: string | null;
+          embedding: any | null;
         };
         Insert: {
           name?: string | null;
@@ -49,7 +49,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           rawText?: string | null;
-          embedding?: string | null;
+          embedding?: any | null;
         };
         Update: {
           name?: string | null;
@@ -57,7 +57,7 @@ export type Database = {
           description?: string | null;
           id?: string;
           rawText?: string | null;
-          embedding?: string | null;
+          embedding?: any | null;
         };
         Relationships: [];
       };
