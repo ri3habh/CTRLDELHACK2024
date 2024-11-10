@@ -1,15 +1,15 @@
-import { fetchCourse } from "@/app/supabase/course";
+import { fetchTutor } from "@/app/supabase/tutor";
 import { NextRequest, NextResponse } from "next/server";
 
 export const runtime = "edge";
 
 export async function GET(
   req: NextRequest,
-  { params: { uuid: courseId } }: { params: { uuid: string } }
+  { params: { uuid: tutorId } }: { params: { uuid: string } }
 ) {
   try {
-    const course = await fetchCourse(courseId);
-    return NextResponse.json({ course }, { status: 200 });
+    const tutor = await fetchTutor(tutorId);
+    return NextResponse.json({ tutor }, { status: 200 });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
