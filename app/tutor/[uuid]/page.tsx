@@ -35,7 +35,7 @@ const TutorCall = ({ params }: { params: { uuid: string } }) => {
   const [stream, setStream] = useState<MediaStream>();
   const [debug, setDebug] = useState<string>();
   const [knowledgeId, setKnowledgeId] = useState<string>("");
-  const [avatarId, setAvatarId] = useState<string>("");
+  const [avatarId, setAvatarId] = useState<string>("Anna_public_3_20240108");
   const [language, setLanguage] = useState<string>("en");
   const [transcription, setTranscription] = useState<string>(""); // New state for transcription
 
