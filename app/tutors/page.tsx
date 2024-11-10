@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Box,
@@ -7,10 +7,8 @@ import {
   IconButton,
   TextField,
   FormControl,
-  FormLabel,
-  RadioGroup,
   FormControlLabel,
-  Radio,
+  Checkbox,
   Stack,
   Typography,
 } from "@mui/material";
@@ -18,68 +16,102 @@ import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import AddIcon from "@mui/icons-material/Add";
 import Avatar from "@mui/material/Avatar";
 
+interface Course {
+  id: string;
+  name: string;
+  description: string;
+  rawText: string;
+  embedding: string;
+  created_at: string;
+}
+
 interface PopupModalProps {
   open: boolean;
-  onClose: (photo: string, name: string, description: string) => void;
+  onClose: () => void;
 }
 
 const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string>("");
   const [selectedName, setSelectedName] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [data, setData] = useState<Course[]>([]);
+  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
 
-  const names: string[] = [
-    "John Doe",
-    "Jane Smith",
-    "Robert Leen",
-    "Alice Johnson",
-    "Emily Davis",
-  ];
-  const photos: string[] = [
-    "/person1.png",
-    "/person2.png",
-    "/person3.png",
-    "/person4.png",
-    "/person5.png",
-  ]; // Replace with actual paths
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/course/get", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const dataEntry = await response.json();
+        setData(dataEntry.courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleCourseChange = (courseId: string) => {
+    setSelectedCourses((prev) => {
+      const updatedCourses = prev.includes(courseId)
+        ? prev.filter((id) => id !== courseId)
+        : [...prev, courseId];
+
+      console.log("Selected Courses:", updatedCourses);
+      return updatedCourses;
+    });
+  };
+
+  const handleSubmit = async () => {
+    const tutorData = {
+      photo: selectedPhoto,
+      name: selectedName,
+      description,
+      kbList: selectedCourses, // renamed for clarity as per your request
+    };
+
+    try {
+      const response = await fetch("/api/tutor/insert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tutorData),
+      });
+
+      if (response.ok) {
+        console.log("Tutor inserted successfully:", tutorData);
+        onClose();
+      } else {
+        console.error("Failed to insert tutor");
+      }
+    } catch (error) {
+      console.error("Error inserting tutor:", error);
+    }
+  };
 
   return (
-    <Modal
-      open={open}
-      onClose={() => onClose(selectedPhoto, selectedName, description)}
-    >
+    <Modal open={open} onClose={onClose}>
       <Box
         sx={{
           width: 400,
           bgcolor: "#333",
-          color: "white", // Set default text color to white
+          color: "white",
           p: 4,
           m: "auto",
           mt: "10%",
           borderRadius: 2,
         }}
       >
-        <h3 style={{ color: "white" }}>Select Options</h3>
+        <h3 style={{ color: "white" }}>Add New Tutor</h3>
 
         <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
-          {photos.map((photo, index) => (
-            <Avatar
-              key={index}
-              src={photo}
-              onClick={() => setSelectedPhoto(photo)}
-              sx={{
-                width: 60,
-                height: 60,
-                cursor: "pointer",
-                border: selectedPhoto === photo ? "2px solid blue" : "none",
-                transition: "transform 0.2s, border-color 0.2s",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  border: "2px solid lightblue",
-                },
-              }}
-            />
-          ))}
+          <Avatar src={selectedPhoto} sx={{ width: 60, height: 60 }} />
         </Stack>
 
         <FormControl component="fieldset" sx={{ mt: 3, width: "100%" }}>
@@ -111,8 +143,8 @@ const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
           fullWidth
           sx={{
             mt: 3,
-            "& .MuiInputBase-root": { color: "white" }, // Input text color
-            "& .MuiInputLabel-root": { color: "#bbb" }, // Label color
+            "& .MuiInputBase-root": { color: "white" },
+            "& .MuiInputLabel-root": { color: "#bbb" },
             "& .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline": {
               borderColor: "#bbb",
             },
@@ -124,10 +156,33 @@ const PopupModal: React.FC<PopupModalProps> = ({ open, onClose }) => {
           onChange={(e) => setDescription(e.target.value)}
         />
 
+        <Typography variant="h6" sx={{ color: "white", mt: 3 }}>
+          Select Courses
+        </Typography>
+        <FormControl sx={{ width: "100%", mt: 2 }}>
+          {data.map((course) => (
+            <FormControlLabel
+              key={course.id}
+              control={
+                <Checkbox
+                  checked={selectedCourses.includes(course.id)}
+                  onChange={() => handleCourseChange(course.id)}
+                  sx={{
+                    color: "white",
+                    "&.Mui-checked": { color: "#1976d2" },
+                  }}
+                />
+              }
+              label={course.name}
+              sx={{ color: "white" }}
+            />
+          ))}
+        </FormControl>
+
         <Button
           variant="contained"
           color="primary"
-          onClick={() => onClose(selectedPhoto, selectedName, description)}
+          onClick={handleSubmit} // Call handleSubmit on click
           sx={{ mt: 3 }}
         >
           Submit
@@ -141,13 +196,7 @@ const AddItemPopup: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
 
   const handleOpen = () => setOpen(true);
-  const handleClose = (photo: string, name: string, description: string) => {
-    setOpen(false);
-    console.log("Selected Photo:", photo);
-    console.log("Selected Name:", name);
-    console.log("Description:", description);
-    // Further data handling (e.g., saving to a database) can go here
-  };
+  const handleClose = () => setOpen(false);
 
   return (
     <div>
@@ -202,14 +251,23 @@ const Tutor = ({
   name: string;
   description: string;
 }) => {
+  const backgroundColor = generateDistinctColorFromName(name);
   return (
     <Stack direction="row" justifyContent={"space-between"} alignItems="center">
       <Stack direction="row" gap="2rem">
-        <img
-          src={image}
-          alt={`${name}'s profile`}
-          style={{ width: "120px", borderRadius: "40%" }}
-        />
+        <Avatar
+          sx={{
+            width: 120,
+            height: 120,
+            backgroundColor: backgroundColor, // Set background color
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {!image && name.charAt(0).toUpperCase()}{" "}
+          {/* Show first letter if no image */}
+        </Avatar>
         <Stack>
           <Typography variant="h6">{name}</Typography>
           <Typography>{description}</Typography>
@@ -222,7 +280,29 @@ const Tutor = ({
   );
 };
 
+// Function to generate more distinct colors based on the first letter of the name
+const generateDistinctColorFromName = (name: string) => {
+  const firstLetter = name.charAt(0).toUpperCase();
+  const charCode = firstLetter.charCodeAt(0);
+  const hue = (charCode * 30) % 360; // Spread hue values across the color wheel more distinctly
+  return `hsl(${hue}, 80%, 50%)`; // Vibrant colors with increased saturation
+};
+
 const Tutors = () => {
+  const [tutors, setTutors] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchTutors = async () => {
+      try {
+        const response = await fetch("/api/tutor/get");
+        const data = await response.json();
+        setTutors(data.tutors); // Assume API returns { tutors: TutorData[] }
+      } catch (error) {
+        console.error("Error fetching tutors:", error);
+      }
+    };
+
+    fetchTutors();
+  }, []);
   return (
     <>
       <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text ml-4">
@@ -238,19 +318,16 @@ const Tutors = () => {
         right="20px"
         width="100%"
       >
-        {/* <Button>
-          <AddIcon sx={{ fontSize: "2.5rem", color: "#1976d2" }} />
-        </Button> */}
         <AddItemPopup />
       </Stack>
 
       <Stack spacing={2} padding="5rem">
-        {people.map((person, index) => (
+        {tutors.map((tutor, index) => (
           <Tutor
             key={index}
-            image={person.profileImage}
-            name={person.name}
-            description={person.description}
+            image={tutor.profileImage}
+            name={tutor.name}
+            description={tutor.description}
           />
         ))}
       </Stack>
