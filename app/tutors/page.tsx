@@ -200,13 +200,13 @@ const AddItemPopup: React.FC = () => {
   const handleClose = () => setOpen(false);
 
   return (
-    <div>
-      <IconButton color="primary" onClick={handleOpen}>
-        <AddIcon />
+    <>
+      <IconButton onClick={handleOpen}>
+        <AddIcon sx={{ color: "white", fontSize: "2.5rem" }} />
       </IconButton>
 
       <PopupModal open={open} onClose={handleClose} />
-    </div>
+    </>
   );
 };
 
@@ -219,25 +219,31 @@ const people = [
   },
   {
     name: "Jane Smith",
-    profileImage: "/person2.png",
+    profileImage: "/person12.png",
     description:
       "Experienced in Computer Science and Programming with a focus on problem-solving.",
   },
   {
     name: "Robert Leen",
-    profileImage: "/person3.png",
+    profileImage: "/person10.png",
     description:
       "A skilled tutor specializing in Chemistry and Biology, with a love for teaching students in a hands-on way.",
   },
   {
     name: "Alice Johnson",
-    profileImage: "/person4.png",
+    profileImage: "/person9.png",
     description:
       "Expert in Artificial Intelligence and Machine Learning, with years of experience in coding and research.",
   },
   {
     name: "Emily Davis",
-    profileImage: "/person5.png",
+    profileImage: "/person8.png",
+    description:
+      "A passionate educator with a background in Software Engineering and a focus on teaching practical coding skills.",
+  },
+  {
+    name: "Emily Davis",
+    profileImage: "/person6.png",
     description:
       "A passionate educator with a background in Software Engineering and a focus on teaching practical coding skills.",
   },
@@ -246,49 +252,62 @@ const people = [
 const Tutor = ({
   id,
   image,
+  tags,
   name,
   description,
 }: {
   image: string;
   id: string;
+  tags: string[];
   name: string;
   description: string;
 }) => {
-  const backgroundColor = generateDistinctColorFromName(name);
   return (
-    <Stack direction="row" justifyContent={"space-between"} alignItems="center">
-      <Stack direction="row" gap="2rem">
-        <Avatar
-          sx={{
-            width: 120,
-            height: 120,
-            backgroundColor: backgroundColor, // Set background color
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+    <Link href={`/tutor/${id}`} sx={{ textDecoration: "none" }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{
+          padding: "1rem",
+          borderRadius: "8px",
+          background: "#242838", // Add repeated colors for smooth looping
+          "&:hover": {
+            transform: "scale(1.02)", // Slight scale effect on hover
+          },
+        }}
+      >
+        <Stack
+          direction="row"
+          gap="2rem"
+          alignItems={"center"}
+          marginLeft="1rem"
         >
-          {!image && name.charAt(0).toUpperCase()}{" "}
-          {/* Show first letter if no image */}
-        </Avatar>
-        <Stack>
-          <Typography variant="h6">{name}</Typography>
-          <Typography>{description}</Typography>
+          <img
+            src={image} // Use the `image` prop here instead of `people[key].profileImage`
+            alt={`${name}'s profile`}
+            style={{ width: "120px", height: "120px", borderRadius: "50%" }}
+          />
+          <Stack>
+            <Typography variant="h6" color="white">
+              {name}
+            </Typography>
+            <Typography color="white">{description}</Typography>
+          </Stack>
         </Stack>
-      </Stack>
-      <Link href={`/tutor/${id}`}>
-        <LocalPhoneIcon sx={{ fontSize: "3rem" }} />
-      </Link>
-    </Stack>
-  );
-};
 
-// Function to generate more distinct colors based on the first letter of the name
-const generateDistinctColorFromName = (name: string) => {
-  const firstLetter = name.charAt(0).toUpperCase();
-  const charCode = firstLetter.charCodeAt(0);
-  const hue = (charCode * 30) % 360; // Spread hue values across the color wheel more distinctly
-  return `hsl(${hue}, 80%, 50%)`; // Vibrant colors with increased saturation
+        {/* <Stack direction="row" gap="0.5rem" marginRight="1rem">
+          {tags.map((tag, idx) => (
+            <Typography key={idx} color="white" variant="body2">
+              {tag}
+            </Typography>
+          ))}
+        </Stack> */}
+
+        <LocalPhoneIcon sx={{ fontSize: "3rem", marginRight: "2rem" }} />
+      </Stack>
+    </Link>
+  );
 };
 
 const Tutors = () => {
@@ -308,12 +327,19 @@ const Tutors = () => {
   }, []);
   return (
     <>
-      <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text ml-4">
-        <p className="text-5xl font-semibold text-transparent text-center pt-10">
-          Tutors
-        </p>
-      </div>
-      <Stack
+      <Typography
+        variant="h2"
+        fontWeight="400"
+        paddingLeft="7rem"
+        paddingTop="3rem"
+        paddingBottom="2rem"
+      >
+        <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text">
+          <p className=" font-semibold text-transparent"> Select Your Tutor</p>
+        </div>
+      </Typography>
+
+      {/* <Stack
         direction="row"
         justifyContent="flex-end"
         position="absolute"
@@ -322,14 +348,35 @@ const Tutors = () => {
         width="100%"
       >
         <AddItemPopup />
-      </Stack>
+      </Stack> */}
+      <IconButton
+        color="primary"
+        sx={{
+          position: "fixed",
+          bottom: "20px",
+          right: "20px",
+          backgroundColor: "#1976d2",
+          "&:hover": {
+            backgroundColor: "#1565c0",
+          },
+        }}
+      >
+        <AddItemPopup />
+        {/* <AddIcon sx={{ fontSize: "2.5rem", color: "white" }} /> */}
+      </IconButton>
 
-      <Stack spacing={2} padding="5rem">
+      <Stack
+        spacing={2}
+        paddingLeft="7rem"
+        paddingRight="7rem"
+        paddingBottom="7rem"
+      >
         {tutors.map((tutor, index) => (
           <Tutor
             key={index}
             id={tutor.id}
-            image={tutor.profileImage}
+            tags={tutor.kbList}
+            image={people[index].profileImage}
             name={tutor.name}
             description={tutor.description}
           />

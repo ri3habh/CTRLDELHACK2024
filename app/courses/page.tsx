@@ -17,6 +17,7 @@ import {
   Box,
   TextField,
   Stack,
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
@@ -110,18 +111,24 @@ const Courses = () => {
 
   return (
     <div>
-      <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text ml-4">
-        <p className="text-5xl font-semibold text-transparent text-center pt-10">
-          Courses
-        </p>
-      </div>
+      <Typography
+        variant="h2"
+        fontWeight="400"
+        paddingLeft="7rem"
+        paddingTop="3rem"
+        paddingBottom="2rem"
+      >
+        <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text">
+          <p className=" font-semibold text-transparent"> Upload Your Notes</p>
+        </div>
+      </Typography>
+
       <TableContainer
         component={Paper}
         sx={{
           backgroundColor: "black",
-          paddingLeft: "10rem",
-          paddingRight: "10rem",
-          paddingTop: "5rem",
+          paddingLeft: "7rem",
+          paddingRight: "7rem",
           boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
           borderRadius: "8px",
         }}
@@ -133,7 +140,8 @@ const Courses = () => {
                 sx={{
                   color: "white",
                   fontSize: "1.2rem",
-                  borderBottom: "2px solid white",
+                  backgroundColor: "#333",
+                  borderBottom: "0.1px solid black", // Black border below header
                   fontWeight: "bold",
                 }}
               >
@@ -143,7 +151,8 @@ const Courses = () => {
                 sx={{
                   color: "white",
                   fontSize: "1.2rem",
-                  borderBottom: "2px solid white",
+                  backgroundColor: "#333",
+                  borderBottom: "0.1px solid black", // Black border below header
                   fontWeight: "bold",
                 }}
               >
@@ -153,7 +162,8 @@ const Courses = () => {
                 sx={{
                   color: "white",
                   fontSize: "1.2rem",
-                  borderBottom: "2px solid white",
+                  backgroundColor: "#333",
+                  borderBottom: "0.1px solid black", // Black border below header
                   fontWeight: "bold",
                 }}
               >
@@ -166,28 +176,46 @@ const Courses = () => {
               <TableRow
                 key={index}
                 sx={{
-                  "&:hover": {
-                    backgroundColor: "#333",
-                    cursor: "pointer",
+                  backgroundColor: "#242838",
+                  borderRadius: "8px",
+
+                  borderBottom: "1px solid black", // Black border between rows
+                  "& > *": {
+                    color: "white",
                   },
                 }}
               >
                 <TableCell
-                  sx={{ color: "white", borderBottom: "1px solid white" }}
+                  sx={{
+                    color: "white",
+                    fontSize: "1.2rem",
+                    // Distinct background for the first column
+                    borderBottom: "1px solid black", // Black border for cells in this column
+                  }}
                 >
                   {course.name}
                 </TableCell>
                 <TableCell
-                  sx={{ color: "white", borderBottom: "1px solid white" }}
+                  sx={{
+                    color: "white",
+                    fontSize: "1.1rem",
+                    borderBottom: "1px solid black", // Black border between rows
+                  }}
                 >
                   {course.description}
                 </TableCell>
-                <TableCell sx={{ borderBottom: "1px solid white" }}>
+                <TableCell
+                  sx={{
+                    borderBottom: "1px solid black", // Black border between rows
+                  }}
+                >
                   <Button
                     variant="contained"
                     component="label"
                     sx={{
-                      backgroundColor: "#1976d2",
+                      fontSize: "1.2rem",
+                      textTransform: "none",
+                      backgroundColor: "#3a4b6b",
                       color: "white",
                       "&:hover": {
                         backgroundColor: "#1565c0",

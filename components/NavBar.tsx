@@ -13,21 +13,33 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 export default function NavBar() {
   return (
-    <Navbar className="w-full">
+    <Navbar className="w-full pt-5">
       <NavbarBrand>
         <Link href="/">
-          <HeyGenLogo />
-          <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text ml-4">
+          {/* <HeyGenLogo /> */}
+          <img src={"/wolf2.png"} style={{ width: "80px" }} />
+          <div className="bg-gradient-to-br from-sky-300 to-indigo-500 bg-clip-text ml-2">
             <p className="text-xl font-semibold text-transparent">Omniverse</p>
           </div>
         </Link>
       </NavbarBrand>
       <NavbarContent justify="center">
         <NavbarItem className="flex flex-row items-center gap-4">
-          <Link isExternal color="foreground" href="/tutors">
+          <Link
+            isExternal
+            color="foreground"
+            href="/tutors"
+            style={{ fontSize: "1.1rem" }}
+          >
             Tutors
           </Link>
-          <Link isExternal color="foreground" href="/courses">
+
+          <Link
+            isExternal
+            color="foreground"
+            href="/courses"
+            style={{ fontSize: "1.1rem" }}
+          >
             Courses
           </Link>
           <ThemeSwitch />

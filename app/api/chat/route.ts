@@ -81,7 +81,7 @@ export async function POST(req: Request) {
       messages: [
         {
           role: "system",
-          content: `You are a helpful tutor. Answer questions based on the following course content:
+          content: `You are a helpful tutor. Answer questions based on the following course content with a maximum of 2 sentences:
           Course: ${relevantCourse.name}
           Content: ${relevantCourse.rawText}`,
         },
