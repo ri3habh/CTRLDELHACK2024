@@ -284,6 +284,34 @@ const Tutor = ({
   name: string;
   description: string;
 }) => {
+  const [data, setData] = useState<Course[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/course/get", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const dataEntry = await response.json();
+        setData(dataEntry.courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const getCourseNames = () => {
+    return tags
+      .map((tag) => {
+        const course = data.find((course) => course.id === tag);
+        return course ? course.name : tag; // Default to ID if name not found
+      })
+      .filter((name) => name); // Filter out any undefined values
+  };
   return (
     <Link href={`/tutor/${id}`} sx={{ textDecoration: "none" }}>
       <Stack
@@ -316,6 +344,27 @@ const Tutor = ({
             </Typography>
             <Typography color="white">{description}</Typography>
           </Stack>
+        </Stack>
+        <Stack direction="row" spacing={1} alignItems={"center"}>
+          {getCourseNames().map((courseName, index) => (
+            <Box
+              key={index}
+              sx={{
+                background: "rgba(251, 194, 135, 0.16)",
+                color: "#fcb232",
+                textTransform: "uppercase",
+                borderRadius: "10rem",
+                paddingLeft: "1rem",
+                paddingRight: "1rem",
+                paddingTop: "0.5rem",
+                paddingBottom: "0.5rem",
+                textAlign: "center",
+                alignItems: "center",
+              }}
+            >
+              <Typography fontSize={{}}>{courseName}</Typography>
+            </Box>
+          ))}
         </Stack>
 
         <LocalPhoneIcon sx={{ fontSize: "3rem", marginRight: "2rem" }} />
